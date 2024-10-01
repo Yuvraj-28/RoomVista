@@ -10,15 +10,16 @@ export type SignInFormData = {
 };
 
 const SignIn = () => {
-  const { showToast } = useAppContext(); // Destructure showToast from context
-  const queryClient = useQueryClient(); // Get queryClient for invalidating queries
-  const navigate = useNavigate(); // Hook for navigation
-  const location = useLocation(); // Hook to get current location
+  const { showToast } = useAppContext();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const location = useLocation();
 
   const {
     register,
-    handleSubmit, // handleSubmit was missing
     formState: { errors },
+    handleSubmit,
   } = useForm<SignInFormData>();
 
   const mutation = useMutation(apiClient.signIn, {
@@ -45,7 +46,7 @@ const SignIn = () => {
           type="email"
           className="border rounded w-full py-1 px-2 font-normal"
           {...register("email", { required: "This field is required" })}
-        />
+        ></input>
         {errors.email && (
           <span className="text-red-500">{errors.email.message}</span>
         )}
@@ -62,14 +63,17 @@ const SignIn = () => {
               message: "Password must be at least 6 characters",
             },
           })}
-        />
+        ></input>
         {errors.password && (
           <span className="text-red-500">{errors.password.message}</span>
         )}
       </label>
       <span className="flex items-center justify-between">
         <span className="text-sm">
-            Not Registered? <Link className="underline" to="/register">Create an account here</Link>
+          Not Registered?{" "}
+          <Link className="underline" to="/register">
+            Create an account here
+          </Link>
         </span>
         <button
           type="submit"

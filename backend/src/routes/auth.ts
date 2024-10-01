@@ -11,69 +11,59 @@ router.post(
   "/login",
   [
     check("email", "Email is required").isEmail(),
-    check("password", "Password with 6 or more characters required").isLength({ min: 6 }),
+    check("password", "Password with 6 or more characters required").isLength({
+      min: 6,
+    }),
   ],
   async (req: Request, res: Response) => {
-    // Validate the request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ message: errors.array() });
     }
 
     const { email, password } = req.body;
 
     try {
-      // Find user by email
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(400).json({ message: "Invalid Credentials" });
       }
 
-      // Compare passwords
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid Credentials" });
       }
 
       const token = jwt.sign(
-        { userID: user.id },
-        process.env.JWT_SECRET_KEY as string, // Use your environment variable
-        { expiresIn: "1d" } // Token valid for 1 day
+        { userId: user.id },
+        process.env.JWT_SECRET_KEY as string,
+        {
+          expiresIn: "1d",
+        }
       );
-
-      // Handle successful login (e.g., generate a token)
-      // const token = ... (JWT generation logic here)
 
       res.cookie("auth_token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Secure in production
-        maxAge: 86400000, // 1 day in milliseconds
-      });
-
-      res.cookie("auth_token", token, {
-        httpOnly:true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 86400000,
       });
-      res.status(200).json({userId: user._id})
-
+      res.status(200).json({ userId: user._id });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ message: "Something went wrong" });
+      res.status(500).json({ message: "Something went wrong" });
     }
   }
 );
 
-router.get("/validate-token", verifyToken, (req: Request, res: Response)=> {
-    res.status(200).send({userID: req.userId})
+router.get("/validate-token", verifyToken, (req: Request, res: Response) => {
+  res.status(200).send({ userId: req.userId });
 });
 
-router.post("/logout",(req: Request, res: Response)=> {
-    res.cookie("auth_token","", {
-        expires : new Date(0),
-    });
-    res.send();
+router.post("/logout", (req: Request, res: Response) => {
+  res.cookie("auth_token", "", {
+    expires: new Date(0),
+  });
+  res.send();
 });
-
 
 export default router;
