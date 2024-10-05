@@ -33,12 +33,12 @@ const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
 
     useEffect(() => {
         reset(hotel);
-    }, [hotel,reset]);
+    }, [hotel, reset]);
 
     const onSubmit = handleSubmit((formDataJson: HotelFormData) => {
         const formData = new FormData();
         if(hotel) {
-            formData.append("hotelId",hotel._id);
+            formData.append("hotelId", hotel._id);
         }
 
         formData.append("name", formDataJson.name);
@@ -55,9 +55,9 @@ const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
             formData.append(`facilities[${index}]`, facility);
         });
 
-        if(formDataJson.imageUrls){
-            formDataJson.imageUrls.forEach((url,index) => {
-                formData.append('imageUrls[${index)]',url);
+        if (formDataJson.imageUrls) {
+            formDataJson.imageUrls.forEach((url, index) => {
+                formData.append(`imageUrls[${index}]`, url);  // Corrected template string
             });
         }
 
@@ -68,7 +68,7 @@ const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
         onSave(formData);
     });
 
-    return ( 
+    return (
         <FormProvider {...formMethods}>
             <form onSubmit={onSubmit}>
                 <DetailsSection />
