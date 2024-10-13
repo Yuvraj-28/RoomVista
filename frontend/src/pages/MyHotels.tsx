@@ -46,11 +46,11 @@ const MyHotels = () => {
                 {hotel.type}
               </div>
               <div className="border border-slate-300 rounded-sm p-3 flex items-center">
-                <BiMoney className="mr-1" />INR.{hotel.pricePerNight} per night
+                <BiMoney className="mr-1" />INR-{hotel.pricePerNight} per night
               </div>
               <div className="border border-slate-300 rounded-sm p-3 flex items-center">
                 <BiHotel className="mr-1" />
-                {hotel.adultCount.toString()} adults, {hotel.childCount} children
+                {hotel.adultCount} adults, {hotel.childCount} children
               </div>
               <div className="border border-slate-300 rounded-sm p-3 flex items-center">
                 <BiStar className="mr-1" />

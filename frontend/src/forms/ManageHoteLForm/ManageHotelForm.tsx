@@ -28,19 +28,29 @@ type Props = {
 };
 
 const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
-    const formMethods = useForm<HotelFormData>(); 
-    const { handleSubmit ,reset } = formMethods;
+    const formMethods = useForm<HotelFormData>();
+    const { handleSubmit, reset, watch } = formMethods;
+
+    // Watch for changes in form state to avoid accessing undefined properties
+    const facilities = watch("facilities") || [];
+    const imageUrls = watch("imageUrls") || [];
+    const imageFiles = watch("imageFiles");
 
     useEffect(() => {
-        reset(hotel);
+        if (hotel) {
+            reset(hotel); // Only reset when hotel data exists
+        }
     }, [hotel, reset]);
 
     const onSubmit = handleSubmit((formDataJson: HotelFormData) => {
         const formData = new FormData();
-        if(hotel) {
+
+        // Append hotel ID if it's an edit operation
+        if (hotel) {
             formData.append("hotelId", hotel._id);
         }
 
+        // Append basic hotel data to FormData
         formData.append("name", formDataJson.name);
         formData.append("city", formDataJson.city);
         formData.append("country", formDataJson.country);
@@ -51,20 +61,24 @@ const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
         formData.append("adultCount", formDataJson.adultCount.toString());
         formData.append("childCount", formDataJson.childCount.toString());
 
-        formDataJson.facilities.forEach((facility, index) => {
+        // Safely append facilities if they exist
+        facilities.forEach((facility, index) => {
             formData.append(`facilities[${index}]`, facility);
         });
 
-        if (formDataJson.imageUrls) {
-            formDataJson.imageUrls.forEach((url, index) => {
-                formData.append(`imageUrls[${index}]`, url);  // Corrected template string
+        // Safely append image URLs if they exist
+        imageUrls.forEach((url, index) => {
+            formData.append(`imageUrls[${index}]`, url);
+        });
+
+        // Safely append image files if they exist
+        if (imageFiles) {
+            Array.from(imageFiles).forEach((imageFile) => {
+                formData.append("imageFiles", imageFile);
             });
         }
 
-        Array.from(formDataJson.imageFiles).forEach((imageFile) => {
-            formData.append('imageFiles', imageFile);
-        });
-
+        // Call the onSave handler with the constructed FormData
         onSave(formData);
     });
 
@@ -76,7 +90,11 @@ const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
                 <GuestsSection />
                 <ImagesSection />
                 <span className="flex justify-end">
-                    <button disabled={isLoading} type="submit" className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-xl disabled:bg-gray-500">
+                    <button
+                        disabled={isLoading}
+                        type="submit"
+                        className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-xl disabled:bg-gray-500"
+                    >
                         Save
                     </button>
                 </span>
